@@ -1,0 +1,5 @@
+when error in nginx like site cant be reached...
+
+check the hosts file 
+check the permission --  it should user  not the root
+Restart the nginx 
