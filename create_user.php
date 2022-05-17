@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
 
 <div>
 <label > First Name:  </label>
@@ -306,17 +306,17 @@
 
 <div>
 <label > Choose at least two hobbies: </label></br>
-<input type="checkbox" name="music">
+<input type="checkbox" name='hobby_list[]' value="music">
 <label> Litening to music </label>
-<input type="checkbox" name="cricket">
+<input type="checkbox" name='hobby_list[]' value="cricket">
 <label> Playing cricket </label>
-<input type="checkbox" name="football">
+<input type="checkbox" name='hobby_list[]' value="football">
 <label> Playing football </lable>
-<input type="checkbox" name="swimming">
+<input type="checkbox" name='hobby_list[]' value="swimming">
 <label> Swimming </lable>
-<input type="checkbox" name="gaming">
+<input type="checkbox" name='hobby_list[]' value="gaming">
 <label> Playing games </lable>
-<input type="checkbox" name="reading">
+<input type="checkbox" name='hobby_list[]' value="reading">
 <label>Reading</lable>
 </div>
 </br>
@@ -324,9 +324,10 @@
 <div>
 <label > Date of Birth: </label>
 <input type="date" name="date_of_birth" min="1900-01-01" max="2001-05-01" value="2001-05-01"   >&ensp;
-<label> (You should more than 21 years old.) </label>
+<label> (You should be older than 21 years) </label>
 </div>
 </br>
+
 
 <div>
 <label> Profile Picture (Only .jpg, .jpeg, .png) </label>
@@ -334,6 +335,7 @@
 <label>Size must be lesser than 1 MB</label>
 </div>
 </br>
+
 
 <div>
     <input type="submit" value="Submit">
@@ -359,3 +361,169 @@
 
 </body>
 </html>
+
+<?php
+
+#Making db connection 
+include 'db_connection.php';
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    $address_line_1 = $_POST['address_line_1'];
+    $address_line_2 = $_POST['address_line_2'];
+    $city = $_POST['city'];
+    $state = $_POST['state'];
+    $country = $_POST['country'];
+    
+
+    $hobby_array = $_POST['hobby_list'];
+    echo "</br>";
+    // echo $hobby_array; this will through array to string error.
+
+
+    // foreach ($hobby_array as $hobby) {
+    //     echo $hobby[0] . "</br>";
+    // }
+    // $ = $_POST['first_name'];
+
+    
+    $date_of_birth = $_POST['date_of_birth'];
+
+    //below process is for saving the uploaded image and how to deal with the same.    
+
+    $file_name = $_FILES['profile_picture']['name'];
+    $temp_name = $_FILES['profile_picture']['tmp_name'];
+    // print_r($file_name);
+    echo $file_name;
+
+    $folder = "images/" . $file_name;
+
+    
+    $sql = "INSERT INTO address (address_line_1 , address_line_2, city, state , country) VALUES ('$address_line_1', '$address_line_2', '$city', '$state', '$country') ";
+    
+   if ($result = $connection ->query($sql)=== TRUE) {
+        // echo $result;
+        $last_address_id = $connection->insert_id;
+        echo $last_address_id . "<br>";
+    } else {
+        echo "Error:" . $sql . "<br>" . $connection->error;
+    } 
+    
+    $sql = "INSERT INTO user (first_name, last_name, email, date_of_birth, profile_picture, address_id) VALUES ('$first_name','$last_name','$email','$date_of_birth', '$file_name', '$last_address_id' )";    
+    
+    if ($result = $connection ->query($sql)=== TRUE) {
+        // echo $result;
+        $last_user_id = $connection->insert_id;
+        echo $last_user_id . "<br>";
+    } else {
+        echo "Error:" . $sql . "<br>" . $connection->error;
+    } 
+  
+
+    // $hobby    =    implode(",", $hobby_array);
+
+    // echo $hobby;   
+
+    // way to save those multiple hobies in three different rows. find out how. must.
+
+    #FIND ID FROM THE TABLE of HOBBY --  and WHAT HOBBY SELECTED
+
+   
+
+
+    // #===========================================db connection===================
+
+
+    // $servername = "localhost";
+    // $username = "root";
+    // $password = "1478";
+    // $dbname = "crud2corephp";
+    
+    // $connection = new mysqli($servername, $username, $password, $dbname);
+    
+    // if ($connection->connect_error) {
+    //     die("Connection failed: " .  $connection->connect_error); 
+    // } else {
+    
+    //     echo "Database Connected Successfully"; 
+    // }
+
+    
+    // #==========================
+    print_r($hobby_array);
+    echo "<br>";
+    $new_array = [];    
+    foreach($hobby_array as $hobby_new){
+        echo  $hobby_new . "<br>";
+        $sql = "SELECT hobby_id FROM hobby WHERE hobby_name = '$hobby_new'";
+
+
+        if ($result=$connection->query($sql)) {
+            $new_result= $result->fetch_array(MYSQLI_ASSOC);
+            print_r($new_result);
+            
+            
+            // foreach($row as $value){
+            //     $new_array = [$value];
+            //     print_r($new_array);
+                
+            // }
+            // print_r($new_array);
+            
+        } else {
+            echo "Error:" . $sql . "<br>" . $connection->error;
+            // echo mysqli_error($connection);           
+        }
+
+       
+
+    }
+
+    echo "<br>";
+    ????????????
+    CHECK FROM HERE>.. MUST -- CHECK -- CHECK WHY ITS THROUGHING THIS TYPE OF ARRAY OR DATATYPE>
+    var_dump($new_result);
+    // foreach ($new_result as $x => $value) {
+    //     echo $value;
+    // }
+
+
+    // echo gettype($new_result);
+    // echo gettype($row);
+    // $new_thing   = $row->fetch_array(MYSQLI_ASSOC);
+    // print_r($new_thing);
+    // foreach ($row as $new_value) {
+    //     print_r( $new_value);
+        // $sql = "INSERT INTO user_hobby (user_id, hobby_id) VALUES('$last_user_id', '$new_value' ) ";
+
+    
+    // }
+    
+            
+    
+
+  
+
+    if(move_uploaded_file($temp_name, $folder)) { #moving the file from the server to temp location - in our case its the images folder.
+        $msg = "Image uploaded successfully";
+    }    else {
+        $msg = "Failed to upload image.";
+    }
+
+
+
+
+
+}
+
+
+
+
+
+?>
