@@ -20,7 +20,7 @@
         <h1> Create New User Profile </h1>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="" enctype="multipart/form-data">
 
         <div>
             <label> First Name: </label>
@@ -434,7 +434,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo $extension_error;
     } elseif($file_size > 1000000) {
 
-        $file_size_error = "The file size should not be more than 1 MB.";
+        $file_size_error = "The file size should be less than 1 MB.";
         echo $file_size_error;
 
     } elseif ($number_of_hobbies >= 2) {
