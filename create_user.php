@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     echo "Error:" . $sql . "<br>" . $connection->error;
                 }
         
-                $sql = "INSERT INTO user (first_name, last_name, email, account_status , email_v_hash , date_of_birth, profile_picture, address_id) VALUES ('$first_name','$last_name','$email', '$account_status', '$email_v_hash', '$date_of_birth', '$file_name', '$last_address_id' )";
+                $sql = "INSERT INTO user (first_name, last_name, email, account_status , email_v_hash , date_of_birth, profile_picture, address_id) VALUES ('$first_name','$last_name','$email_new', '$account_status', '$email_v_hash', '$date_of_birth', '$file_name', '$last_address_id' )";
         
                 if ($result = $connection->query($sql) === TRUE) {
                     // echo $result;
@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             
-                $get_new_email_dbid_query = "SELECT id FROM create_user WHERE email = '$email_new'";
+                $get_new_email_dbid_query = "SELECT user_id FROM user WHERE email = '$email_new'";
 
                 $new_result_for_new_dbid = $connection->query($get_new_email_dbid_query);
 
@@ -284,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     }else{
-        echo "Check mandatory fields."; #you can just keep this message empty.
+        echo "<font color=red>" . "Check mandatory fields." . "</font>" ; #you can just keep this message empty.
     }
 
 }

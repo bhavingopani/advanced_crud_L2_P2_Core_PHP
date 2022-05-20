@@ -49,8 +49,82 @@ $page_first_result = ($page - 1) * $results_per_page;
 
 $sql_new = "SELECT * FROM user LIMIT $page_first_result , $results_per_page";
 
+
 // $result = mysqli_query($connection, $sql);
 $result_new = $connection->query($sql_new);
+
+#temporory the below ===========
+// while ($row_new = mysqli_fetch_array($result_new)) {
+// // echo $row_new;
+// // echo $row_new['user_id'];
+
+
+// #temporory the above ===========
+// # user table  --            user_id   hobbies to be added OR without adding how can we get the data
+// # hobby table --            hobby_id
+// # user_hobby table  --      user_id  hobby_id
+// // We want user_id and his hobbies of user via user_id 
+
+// $sql_latest = "SELECT  hobby_id FROM user_hobby WHERE user_id = '$row_new[user_id]'  ";
+
+// $result_latest = $connection->query($sql_latest);
+
+
+// // print_r($result_latest);
+// // foreach ($result_latest as $value_latest){
+// //     echo $value_latest;
+// // }
+// $rows_latest = [];
+// while($row = $result_latest->fetch_row()) {
+//     $rows_latest [] = $row;
+//     echo "== </br>";
+// }
+// foreach($rows_latest as $value_latest){
+//     echo $value_latest;
+// }
+
+// // print_r($rows_latest);
+// // foreach($rows_latest as $value_latest){
+// //     echo $value_latest;
+// // }
+// echo "</br>";
+  
+// }
+
+
+
+# user table  --            user_id   hobbies to be added OR without adding how can we get the data
+# hobby table --            hobby_id
+# user_hobby table  --      user_id  hobby_id
+// We want user_id and his hobbies of user via user_id 
+
+$new_sql = "SELECT user.user_id , hobby.hobby_id , user_hobby.user_id FROM user JOIN  hobby JOIN user_hobby  ON hobby.hobby_id = 'user_hobby.user_id' ";
+
+$result_new_sql = $connection->query($new_sql);
+
+// print_r($result_new_sql);
+while ($new_row_latest= $result_new_sql->fetch_row()){
+    
+}
+
+echo $new_row_latest;
+
+// print_r($result_new_sql);
+
+// echo gettype($result_new_sql);
+
+// $result_new_sql->free_result();
+
+// echo $result_new_sql;
+
+
+
+
+
+
+
+
+
 
 #PAGINATION
 
@@ -102,6 +176,7 @@ $result_new = $connection->query($sql_new);
                 <th> Account Status </th>
                 <th> DOB </th>
                 <th> Hobbies </th>
+                <th> Profile Picture </th>
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
@@ -115,6 +190,7 @@ $result_new = $connection->query($sql_new);
                     echo "<td>" . $row_new['email'] . "</td>";
                     echo "<td>" . $row_new['account_status'] . "</td>";
                     echo "<td>" . $row_new['date_of_birth'] . "</td>";
+                    echo "<td>" . $row_new['hobby'] . "</td>"; #GET THIS VALUE -- FROM OTHER QUERIES AND GET IT SAVED FIRST IN THE DATABASE 
                     echo "<td>" . $row_new['profile_picture'] . "</td>";
                     echo "<td><a href=" . "edit_user.php?id=" . $row_new['user_id'] . ">" .  "Edit </a></td>";
                     // echo "<td><button type=submit name=delete><a href=user_list.php?id=" . $row_new['id']  .">". "Delete" . "</button></td>";
