@@ -98,16 +98,29 @@ $result_new = $connection->query($sql_new);
 # user_hobby table  --      user_id  hobby_id
 // We want user_id and his hobbies of user via user_id 
 
-$new_sql = "SELECT user.user_id , hobby.hobby_id , user_hobby.user_id FROM user JOIN  hobby JOIN user_hobby  ON hobby.hobby_id = 'user_hobby.user_id' ";
+$new_sql = "SELECT  hobby.hobby_id, user_hobby.user_id , hobby.hobby_name 
+           FROM user, hobby WHERE user.user_id = 'user_hobby.user_id' ";
 
 $result_new_sql = $connection->query($new_sql);
 
+echo gettype($result_new_sql);
+
+
+$new_rows = array();
 // print_r($result_new_sql);
-while ($new_row_latest= $result_new_sql->fetch_row()){
-    
+while ($new_row_latest= mysqli_fetch_assoc($result_new_sql)){
+    // echo $new_row_latest;
+
+    $new_rows[] = $new_row_latest['hobby'];
+
 }
 
-echo $new_row_latest;
+print_r($new_rows);
+
+// foreach($new_rows as $key->$value) {
+
+//     echo $value;
+// }
 
 // print_r($result_new_sql);
 
@@ -197,6 +210,10 @@ echo $new_row_latest;
                     echo "<td><a href=" . "delete_user.php?id=" . $row_new['user_id'] . ">" .  "Delete </a></td>";
                 echo "</tr>";
             }
+
+
+            
+
 
 
 
