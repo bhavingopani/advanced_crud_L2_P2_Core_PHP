@@ -98,6 +98,8 @@ $result_new = $connection->query($sql_new);
 # user_hobby table  --      user_id  hobby_id
 // We want user_id and his hobbies of user via user_id 
 
+#WATCH THOSE LINKS or WATCH A CHEPTER ON JOIN MUST  AGAIN.. KNOW THE CONCEPTS -- CLEARLY and DO THE PRACTICAL.
+
 $new_sql = "SELECT  hobby.hobby_id, user_hobby.user_id , hobby.hobby_name 
            FROM user, hobby WHERE user.user_id = 'user_hobby.user_id' ";
 
