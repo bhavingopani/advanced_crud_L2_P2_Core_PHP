@@ -100,24 +100,24 @@ $result_new = $connection->query($sql_new);
 
 #WATCH THOSE LINKS or WATCH A CHEPTER ON JOIN MUST  AGAIN.. KNOW THE CONCEPTS -- CLEARLY and DO THE PRACTICAL.
 
-$new_sql = "SELECT  hobby.hobby_id, user_hobby.user_id , hobby.hobby_name 
-           FROM user, hobby WHERE user.user_id = 'user_hobby.user_id' ";
+// $new_sql = "SELECT  hobby.hobby_id, user_hobby.user_id , hobby.hobby_name 
+//            FROM user, hobby WHERE user.user_id = 'user_hobby.user_id' ";
 
-$result_new_sql = $connection->query($new_sql);
+// $result_new_sql = $connection->query($new_sql);
 
-echo gettype($result_new_sql);
+// echo gettype($result_new_sql);
 
 
-$new_rows = array();
+// $new_rows = array();
 // print_r($result_new_sql);
-while ($new_row_latest= mysqli_fetch_assoc($result_new_sql)){
+// while ($new_row_latest= mysqli_fetch_assoc($result_new_sql)){
     // echo $new_row_latest;
 
-    $new_rows[] = $new_row_latest['hobby'];
+    // $new_rows[] = $new_row_latest['hobby'];
 
-}
+// }
 
-print_r($new_rows);
+// print_r($new_rows);
 
 // foreach($new_rows as $key->$value) {
 
@@ -132,8 +132,70 @@ print_r($new_rows);
 
 // echo $result_new_sql;
 
+#THE BELOW IS CORE QUERY worked on the query editor directly.
+// SELECT * FROM user JOIN user_hobby JOIN hobby
+// ON user.user_id = user_hobby.user_id 
+// AND user_hobby.hobby_id = hobby.hobby_id
+
+// got the data -- now to check -- PHP use -- to convert that into usable data structure.
 
 
+$sql_that = "SELECT  user.user_id, hobby.hobby_id, hobby.hobby_name FROM user JOIN user_hobby JOIN hobby ON user.user_id = user_hobby.user_id AND user_hobby.hobby_id = hobby.hobby_id";
+
+$result_that = $connection->query($sql_that);
+
+// $rows_that = [];
+
+// while ($row = mysqli_fetch_assoc($result_that)) {
+//     $rows_that []= $row;
+// }
+
+$row = $result_that-> fetch_all(MYSQLI_ASSOC);
+
+// $result_that_new = $result_that -> free_result();
+// echo $row;
+// echo "</br>";
+// print_r($row);
+// echo "</br></br></br>";
+// echo "====";
+// echo "</br></br></br>";
+
+// echo $row[0]['hobby_name'];
+
+#Now want to make an array for each user_id hobby and list them to the respective row.
+echo "====";
+echo "</br></br></br>";
+print_r($row);
+echo "</br></br></br>";
+echo "====";
+echo "</br></br></br>";
+
+ foreach ($row as $x=> $new_value) {
+    // echo " key=" . $x . ", value=" . $new_value;
+    echo "</br>";
+    echo $x;
+    print_r($new_value);
+    // print_r($new_value);
+    // echo "</br>";
+}
+
+
+
+// echo $rows_that;
+// print_r($rows_that);
+echo "</br></br></br>===== </br>";
+// print_r($rows_that['hobby_name']) ;
+
+// foreach ($rows_that as $value_that) {
+//     print_r($value_that);
+//     echo "</br>";
+//     echo $value_that['hobby_name'];
+//     echo "</br>";
+// }
+
+
+
+KNOW FROM THE BASIC... HOW YOU SEPARATE IT BY IDENTICAL IDS.. LOOK AT THE STRUCTURE FIRST>
 
 
 
@@ -205,7 +267,7 @@ print_r($new_rows);
                     echo "<td>" . $row_new['email'] . "</td>";
                     echo "<td>" . $row_new['account_status'] . "</td>";
                     echo "<td>" . $row_new['date_of_birth'] . "</td>";
-                    echo "<td>" . $row_new['hobby'] . "</td>"; #GET THIS VALUE -- FROM OTHER QUERIES AND GET IT SAVED FIRST IN THE DATABASE 
+                    echo "<td>" . /*$row_new['hobby'] */  "</td>"; #GET THIS VALUE -- FROM OTHER QUERIES AND GET IT SAVED FIRST IN THE DATABASE 
                     echo "<td>" . $row_new['profile_picture'] . "</td>";
                     echo "<td><a href=" . "edit_user.php?id=" . $row_new['user_id'] . ">" .  "Edit </a></td>";
                     // echo "<td><button type=submit name=delete><a href=user_list.php?id=" . $row_new['id']  .">". "Delete" . "</button></td>";
