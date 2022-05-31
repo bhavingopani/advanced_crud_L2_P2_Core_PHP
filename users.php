@@ -151,6 +151,7 @@ $result_that = $connection->query($sql_that);
 // }
 
 $row = $result_that-> fetch_all(MYSQLI_ASSOC);
+// $row = $result_that-> fetch_array(MYSQLI_NUM);
 
 // $result_that_new = $result_that -> free_result();
 // echo $row;
@@ -163,21 +164,84 @@ $row = $result_that-> fetch_all(MYSQLI_ASSOC);
 // echo $row[0]['hobby_name'];
 
 #Now want to make an array for each user_id hobby and list them to the respective row.
-echo "====";
-echo "</br></br></br>";
-print_r($row);
-echo "</br></br></br>";
-echo "====";
-echo "</br></br></br>";
+// echo gettype($row);
+// echo "====";
+// echo "</br></br></br>";
+// echo "<pre>";
+// print_r($row);
+// UNDERSTAND THE LOGIC - MUST CHCEK THAT LATER.
+// echo "</br> ------------------------------------------------- </br>";
 
- foreach ($row as $x=> $new_value) {
-    // echo " key=" . $x . ", value=" . $new_value;
-    echo "</br>";
-    echo $x;
-    print_r($new_value);
-    // print_r($new_value);
-    // echo "</br>";
+// // foreach ($row as $hobby) {
+// //     print_r($hobby);
+// // }
+
+// // echo "<pre>";
+// // print_r($hobby)
+// echo "</br> ------------------------------------------------- </br>";
+
+
+
+$finalHobbiesByuser = [];
+
+foreach($row as $hobby){
+    $finalHobbiesByuser[$hobby['user_id']][] = $hobby['hobby_name'];
 }
+
+// echo "<pre>";
+// print_r($finalHobbiesByuser);
+
+
+// echo "</br></br></br>";
+// echo "====";
+// echo "</br></br></br>";
+
+
+// // print_r($row_new);
+
+// echo "</br></br></br>";
+// echo "====";
+// echo "</br></br></br>";
+
+
+// $new_array = array();
+// foreach ($row as $k => $value){
+//     // print_r($value);
+//     // echo "</br>";
+//     // echo next($value);
+//     // echo next($value['hobby_id']);
+//     // echo $value['user_id'];
+//     // foreach ($value as $new_value) {
+//     //     // echo $new_value;
+//     //     // echo current($new_value);
+//     // }
+    
+    
+
+
+
+//     // foreach ($value as $key => $further_value) {
+//     //     echo "</br>===FURTHER VALUE====";
+//     //     // print_r($further_value);
+//     //     // echo $key . $further_value ;
+        
+        
+//     //     echo "</br>===FURTHER VALUE END====";
+//     //     // echo $further_value;
+//     // }
+//     echo "</br></br>";
+// }
+
+
+
+//  foreach ($row as $x=> $new_value) {
+//     // echo " key=" . $x . ", value=" . $new_value;
+//     echo "</br>";
+//     echo $x;
+//     print_r($new_value);
+//     // print_r($new_value);
+//     // echo "</br>";
+// }
 
 
 
@@ -195,7 +259,7 @@ echo "</br></br></br>===== </br>";
 
 
 
-KNOW FROM THE BASIC... HOW YOU SEPARATE IT BY IDENTICAL IDS.. LOOK AT THE STRUCTURE FIRST>
+// KNOW FROM THE BASIC... HOW YOU SEPARATE IT BY IDENTICAL IDS.. LOOK AT THE STRUCTURE FIRST>
 
 
 
@@ -267,7 +331,7 @@ KNOW FROM THE BASIC... HOW YOU SEPARATE IT BY IDENTICAL IDS.. LOOK AT THE STRUCT
                     echo "<td>" . $row_new['email'] . "</td>";
                     echo "<td>" . $row_new['account_status'] . "</td>";
                     echo "<td>" . $row_new['date_of_birth'] . "</td>";
-                    echo "<td>" . /*$row_new['hobby'] */  "</td>"; #GET THIS VALUE -- FROM OTHER QUERIES AND GET IT SAVED FIRST IN THE DATABASE 
+                    echo "<td>" . (!empty($finalHobbiesByuser[$row_new['user_id']]) ? implode(',', $finalHobbiesByuser[$row_new['user_id']]) : '-'). "</td>"; #used ternary operator with the help of buddy.
                     echo "<td>" . $row_new['profile_picture'] . "</td>";
                     echo "<td><a href=" . "edit_user.php?id=" . $row_new['user_id'] . ">" .  "Edit </a></td>";
                     // echo "<td><button type=submit name=delete><a href=user_list.php?id=" . $row_new['id']  .">". "Delete" . "</button></td>";

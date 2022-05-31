@@ -23,6 +23,6 @@ Functionalities and Conditions:
 - At least 2 hobbies must be selected.
 - Profile pictures should only be image ( PNG and JPG ) and size must be less than 1 MB.
 - In list users page add profile picture with Full name column, new column for DOB and Hobbies.
-- Add/Edit form should be via ajax.
-- If there is any validation error arrise in ajax than it should be filled in form for each field
+- Add/Edit form should be via ajax. (in progress)
+- If there is any validation error arise in ajax than it should be filled in form for each field
 - Profile pictire needs to be stored in the public directory of project with this location uploads/<user_id>
