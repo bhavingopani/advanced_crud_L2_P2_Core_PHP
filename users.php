@@ -53,132 +53,13 @@ $sql_new = "SELECT * FROM user LIMIT $page_first_result , $results_per_page";
 // $result = mysqli_query($connection, $sql);
 $result_new = $connection->query($sql_new);
 
-#temporory the below ===========
-// while ($row_new = mysqli_fetch_array($result_new)) {
-// // echo $row_new;
-// // echo $row_new['user_id'];
-
-
-// #temporory the above ===========
-// # user table  --            user_id   hobbies to be added OR without adding how can we get the data
-// # hobby table --            hobby_id
-// # user_hobby table  --      user_id  hobby_id
-// // We want user_id and his hobbies of user via user_id 
-
-// $sql_latest = "SELECT  hobby_id FROM user_hobby WHERE user_id = '$row_new[user_id]'  ";
-
-// $result_latest = $connection->query($sql_latest);
-
-
-// // print_r($result_latest);
-// // foreach ($result_latest as $value_latest){
-// //     echo $value_latest;
-// // }
-// $rows_latest = [];
-// while($row = $result_latest->fetch_row()) {
-//     $rows_latest [] = $row;
-//     echo "== </br>";
-// }
-// foreach($rows_latest as $value_latest){
-//     echo $value_latest;
-// }
-
-// // print_r($rows_latest);
-// // foreach($rows_latest as $value_latest){
-// //     echo $value_latest;
-// // }
-// echo "</br>";
-  
-// }
-
-
-
-# user table  --            user_id   hobbies to be added OR without adding how can we get the data
-# hobby table --            hobby_id
-# user_hobby table  --      user_id  hobby_id
-// We want user_id and his hobbies of user via user_id 
-
-#WATCH THOSE LINKS or WATCH A CHEPTER ON JOIN MUST  AGAIN.. KNOW THE CONCEPTS -- CLEARLY and DO THE PRACTICAL.
-
-// $new_sql = "SELECT  hobby.hobby_id, user_hobby.user_id , hobby.hobby_name 
-//            FROM user, hobby WHERE user.user_id = 'user_hobby.user_id' ";
-
-// $result_new_sql = $connection->query($new_sql);
-
-// echo gettype($result_new_sql);
-
-
-// $new_rows = array();
-// print_r($result_new_sql);
-// while ($new_row_latest= mysqli_fetch_assoc($result_new_sql)){
-    // echo $new_row_latest;
-
-    // $new_rows[] = $new_row_latest['hobby'];
-
-// }
-
-// print_r($new_rows);
-
-// foreach($new_rows as $key->$value) {
-
-//     echo $value;
-// }
-
-// print_r($result_new_sql);
-
-// echo gettype($result_new_sql);
-
-// $result_new_sql->free_result();
-
-// echo $result_new_sql;
-
-#THE BELOW IS CORE QUERY worked on the query editor directly.
-// SELECT * FROM user JOIN user_hobby JOIN hobby
-// ON user.user_id = user_hobby.user_id 
-// AND user_hobby.hobby_id = hobby.hobby_id
-
-// got the data -- now to check -- PHP use -- to convert that into usable data structure.
-
 
 $sql_that = "SELECT  user.user_id, hobby.hobby_id, hobby.hobby_name FROM user JOIN user_hobby JOIN hobby ON user.user_id = user_hobby.user_id AND user_hobby.hobby_id = hobby.hobby_id";
 
 $result_that = $connection->query($sql_that);
 
-// $rows_that = [];
-
-// while ($row = mysqli_fetch_assoc($result_that)) {
-//     $rows_that []= $row;
-// }
 
 $row = $result_that-> fetch_all(MYSQLI_ASSOC);
-// $row = $result_that-> fetch_array(MYSQLI_NUM);
-
-// $result_that_new = $result_that -> free_result();
-// echo $row;
-// echo "</br>";
-// print_r($row);
-// echo "</br></br></br>";
-// echo "====";
-// echo "</br></br></br>";
-
-// echo $row[0]['hobby_name'];
-
-#Now want to make an array for each user_id hobby and list them to the respective row.
-// echo gettype($row);
-// echo "====";
-// echo "</br></br></br>";
-// echo "<pre>";
-// print_r($row);
-// UNDERSTAND THE LOGIC - MUST CHCEK THAT LATER.
-// echo "</br> ------------------------------------------------- </br>";
-
-// // foreach ($row as $hobby) {
-// //     print_r($hobby);
-// // }
-
-// // echo "<pre>";
-// // print_r($hobby)
-// echo "</br> ------------------------------------------------- </br>";
 
 
 
@@ -188,86 +69,16 @@ foreach($row as $hobby){
     $finalHobbiesByuser[$hobby['user_id']][] = $hobby['hobby_name'];
 }
 
-// echo "<pre>";
-// print_r($finalHobbiesByuser);
-
-
-// echo "</br></br></br>";
-// echo "====";
-// echo "</br></br></br>";
-
-
-// // print_r($row_new);
-
-// echo "</br></br></br>";
-// echo "====";
-// echo "</br></br></br>";
-
-
-// $new_array = array();
-// foreach ($row as $k => $value){
-//     // print_r($value);
-//     // echo "</br>";
-//     // echo next($value);
-//     // echo next($value['hobby_id']);
-//     // echo $value['user_id'];
-//     // foreach ($value as $new_value) {
-//     //     // echo $new_value;
-//     //     // echo current($new_value);
-//     // }
-    
-    
-
-
-
-//     // foreach ($value as $key => $further_value) {
-//     //     echo "</br>===FURTHER VALUE====";
-//     //     // print_r($further_value);
-//     //     // echo $key . $further_value ;
-        
-        
-//     //     echo "</br>===FURTHER VALUE END====";
-//     //     // echo $further_value;
-//     // }
-//     echo "</br></br>";
-// }
-
-
-
-//  foreach ($row as $x=> $new_value) {
-//     // echo " key=" . $x . ", value=" . $new_value;
-//     echo "</br>";
-//     echo $x;
-//     print_r($new_value);
-//     // print_r($new_value);
-//     // echo "</br>";
-// }
-
-
-
-// echo $rows_that;
-// print_r($rows_that);
-echo "</br></br></br>===== </br>";
-// print_r($rows_that['hobby_name']) ;
-
-// foreach ($rows_that as $value_that) {
-//     print_r($value_that);
-//     echo "</br>";
-//     echo $value_that['hobby_name'];
-//     echo "</br>";
-// }
-
-
-
-// KNOW FROM THE BASIC... HOW YOU SEPARATE IT BY IDENTICAL IDS.. LOOK AT THE STRUCTURE FIRST>
-
-
-
-
-
-
-
 #PAGINATION
+
+
+
+#AJAX 
+    #haary video till 27:41 - All basic Concepts.
+    #
+
+
+
 
 ?>
 
@@ -338,12 +149,6 @@ echo "</br></br></br>===== </br>";
                     echo "<td><a href=" . "delete_user.php?id=" . $row_new['user_id'] . ">" .  "Delete </a></td>";
                 echo "</tr>";
             }
-
-
-            
-
-
-
 
             ?>                      
             
