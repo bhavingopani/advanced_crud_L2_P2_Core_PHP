@@ -1,75 +1,309 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
-//CONNECTING DB
+require 'vendor/autoload.php';
+
+#Making db connection 
 include 'db_connection.php';
 
+// CHECK FROM THE START AND CHECK THE LOGIC FROM THE START AND MODIFY ACCORDINGLY
 
-// FIND THE CURRENT ID and ITS DATA TO BE DISPLAYED IN ALL THE FIELDS Echo all of them
-$current_id = $_GET['user_id'];
-
-// echo "<br>". $current_id;
-// $sql = "SELECT * FROM user WHERE user_id=$current_id";
-
-// $sql = "SELECT * FROM user JOIN hobby JOIN user_hobby JOIN address ON  user.user_id = user_hobby.user_id AND   user.address_ id = address.address_id AND user_hobby.hobby_id = hobby.hobby_id  ";    
-$sql = "SELECT * FROM user  JOIN address ON  user.address_id = address.address_id WHERE user_id = $current_id ";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
-$result = $connection->query($sql);
+    //for validation err.. added this after writing logic as we will have to need this.. later
+    // $anyErr = $firstNameErr = $emailErr = $passwordErr = $confirmPasswordErr = $zeroHobbyErr = $dboErr = "";
+    // $first_name = $email_new = $password = $confirm_password = $hobby_array =  $date_of_birth = ""; #assuming empty so that we don't have warning of undefined variable. 
+
+    $anyErr = $firstNameErr = $emailErr  = $zeroHobbyErr = $dboErr = "";
+    $first_name = $email_new  = $hobby_array =  $date_of_birth = ""; #assuming empty so that we don't have warning of undefined variable. 
 
 
-// echo "<pre>";
-// print_r($result);
-// echo "</pre>";
+    //saving all the data coming from the from to the respective variables.
+    if (empty($_POST['first_name'])) {
+        $firstNameErr = "First name is required";
+    } else {
+        $first_name = $_POST['first_name'];
+    }
 
-//ONCE HIT the Update/Edit Button - it takes us to update_user.php where all the things will happen
+    $last_name = $_POST['last_name'];
 
-// $row = $result -> fetch_array(MYSQLI_NUM);
-// echo "<pre>";
-// print_r($row);
-// echo "</pre>";
+    if (empty($_POST['email'])) {
+        $emailErr = "Email is required";
+    } else {
+        $email_new = $_POST['email'];
+    }
 
-echo "</br> ====== </br>";
+    // if (empty($_POST['password'])) {
+    //     $passwordErr = "Password is required";
+    // } else {
+    //     $password = $_POST['password'];
+    // }
 
-// foreach($row as $value_new_now){
-//     echo $value_new_now;
-// }
-
-echo "</br> ====== </br>";
-
-
-
-
-while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
-
-
-    $current_id = $row['user_id'];
-    $current_fname = $row['first_name'];
-    $current_lname = $row['last_name'];
-    $current_email= $row['email'];
-    $current_account_status = $row['account_status'];
-    $current_email_v_hash = $row['email_v_hash'];
-    $current_date_of_birth = $row['date_of_birth'];
-    $current_profile_picture = $row['profile_picture'];
-    $current_address_id = $row['address_id'];
-    // $current_hobby_name = $row['hobby_name']; //FIGURE OUT -- HOW TO GET THE LIST OF HOBBIES as ITS NOT IN THE DATABASE
-    $current_address_line_1 = $row['address_line_1'];
-    $current_address_line_2 = $row['address_line_2'];
-    $current_city = $row['city'];
-    $current_state = $row['state'];
-    $current_country = $row['country'];
+    // if (empty($_POST['confirm_password'])) {
+    //     $confirmPasswordErr = "Confirm Password is required";
+    // } else {
+    //     $confirm_password = $_POST['confirm_password'];
+    // }
     
+    $current_address_id = $_POST['address_id'];
+    $address_line_1 = $_POST['address_line_1'];
+    $address_line_2 = $_POST['address_line_2'];
+    $city = $_POST['city'];
+    $state = $_POST['state'];
+    $country = $_POST['country'];
 
+
+    if (empty($_POST['hobby_list'])) {
+        $zeroHobbyErr = "At least two hobbies must be selected";
+    } else {
+        $hobby_array = $_POST['hobby_list'];
+    }
+
+
+    echo "</br>";
+
+
+    // echo $hobby_array; this will through array to string error.
+
+
+    // foreach ($hobby_array as $hobby) {
+    //     echo $hobby[0] . "</br>";
+    // }
+    // $ = $_POST['first_name'];
+
+    if (empty($_POST['date_of_birth'])) {
+        $dboErr = "Please enter date of birth";
+    } else {
+        $date_of_birth = $_POST['date_of_birth'];
+    }
+
+    //below process is for saving the uploaded image and how to deal with the same.    
+
+    $file_name = $_FILES['profile_picture']['name'];
+    $temp_name = $_FILES['profile_picture']['tmp_name'];
+    // print_r($file_name);
+    echo $file_name;
+
+    $folder = "images/" . $file_name;
+
+    // print_r ($hobby_array);
+    echo "<br>";
+
+
+    // if ($firstNameErr == "" and $emailErr == "" and $passwordErr == "" and $confirmPasswordErr == "" and $zeroHobbyErr == "" and $dboErr == "") {
+    if ($firstNameErr == "" and $emailErr == "" and $zeroHobbyErr == "" and $dboErr == "") {
+
+        $validation_query = "SELECT * FROM user WHERE email ='" . $email_new . "'";
+        $result_now = $connection->query($validation_query);
+        if (mysqli_num_rows($result_now)) {
+            $email_already_err = "This email address is already in use!";
+        } else {
+
+
+            $number_of_hobbies = count($hobby_array);
+
+            $allowed_ext = array('png', 'jpg', 'jpeg', '');
+            $file_name = $_FILES['profile_picture']['name'];
+            $file_size = $_FILES['profile_picture']['size'];
+            $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+
+            if (!in_array($ext, $allowed_ext)) {  #means - checking if the extension is from the allowed extensiong - if not then through an error
+                $extension_error = "Only PNG, JPG, and JPEG files are accepted";
+                echo $extension_error;
+            } elseif ($file_size > 1000000) {
+
+                $file_size_error = "The file size should be less than 1 MB.";
+                echo $file_size_error;
+            } elseif ($number_of_hobbies < 2) {
+                // echo $number_of_hobbies;
+                $hobby_error = "Select at least two hobbies";
+                echo $hobby_error;
+            // } elseif ($password === $confirm_password) {
+            // } elseif ($password === $confirm_password) {
+                // $hash = password_hash($password, PASSWORD_DEFAULT);
+                // $password = $hash;
+                // ???????????AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa
+                $account_status = "not_verified"; #default value not_varified
+                #cleaning the data -- otherwise witll throgh en Eroor. Sanitize the data
+                #it should be in plain text
+                // $mysqli->real_escape_String($email_status);
+                // $email_status=htmlspecialchars($email_status);
+
+                #generating random string first
+                $random_string = rand();
+                $email_v_hash = md5($random_string); #it will generate an alpha-numeric hashed string that we can use to for email verification
+                // echo $email_v_hash; 
+
+                // $sql = "INSERT INTO address (address_line_1 , address_line_2, city, state , country) VALUES ('$address_line_1', '$address_line_2', '$city', '$state', '$country') ";
+                // $query = "UPDATE create_user SET first_name = '$first_name' ,  last_name = '$last_name' , email = '$new_email', email_status = 'not_verified', email_v_hash = '$email_v_hash'  WHERE id ='" . $current_id . "'";
+                // GET THE ADDRESS ID OF CURRENT RECORD -------  ======= +++++++
+                $sql = "UPDATE address SET address_line_1 = '$address_line_1' , address_line_2 = '$address_line_2', city = '$city' , state = '$state' , country = '$country' WHERE address_id ='" . $current_address_id . "'"; 
+                
+                if ($result = $connection->query($sql) === TRUE) {
+                    // echo $result;
+                    // $last_address_id = $connection->insert_id;
+                    echo "<font color='green'> Record updated successfully</font>";
+                    // echo $last_address_id . "<br>";
+                } else {
+                    echo "Error:" . $sql . "<br>" . $connection->error;
+                }
+
+                // $sql = "INSERT INTO user (first_name, last_name, email, account_status , email_v_hash , date_of_birth, profile_picture, address_id) VALUES ('$first_name','$last_name','$email_new', '$account_status', '$email_v_hash', '$date_of_birth', '$file_name', '$last_address_id' )";
+                $sql = "UPDATE user SET first_name= '$first_name'  , last_name = '$last_name' , email='$email_new' , account_status='$account_status' , email_v_hash = $email_v_hash  , date_of_birth= '$date_of_birth' , profile_picture='$file_name', address_id = '$current_address_id' WHERE user_id = $??? "; 
+                    GET ADDRESS ID FROM THE EDIT USER FILE
+                                                                                                                                                                                
+
+
+                if ($result = $connection->query($sql) === TRUE) {
+                    // echo $result;
+                    $last_user_id = $connection->insert_id;
+                    echo $last_user_id . "<br>";
+                } else {
+                    echo "Error:" . $sql . "<br>" . $connection->error;
+                }
+
+
+                print_r($hobby_array);
+                echo "<br>";
+                $new_array = array();
+                foreach ($hobby_array as $hobby_new) {
+                    echo  $hobby_new . "<br>";
+                    $sql = "SELECT hobby_id FROM hobby WHERE hobby_name = '$hobby_new'";
+
+
+                    if ($result = $connection->query($sql)) {
+                        $new_result = $result->fetch_array(MYSQLI_ASSOC);
+                        print_r($new_result);
+                        echo "<br>";
+                        var_dump($new_result);
+
+
+                        foreach ($new_result as $new_value) {
+                            $new_array[] = $new_value;
+                        }
+
+                        // foreach ($new_result as $key=> $value){
+                        //     $new_array = [$value];
+
+                        // }
+
+                        // echo $new_array;
+                        // foreach($row as $value){
+                        //     $new_array = [$value];
+                        //     print_r($new_array);
+
+                        // }
+                        // print_r($new_array);
+
+                    } else {
+                        echo "Error:" . $sql . "<br>" . $connection->error;
+                        // echo mysqli_error($connection);           
+                    }
+                }
+
+                echo "<br>";
+
+                // var_dump($new_result);
+                print_r($new_array); #GOT THE 
+                // foreach ($new_result as $x => $value) {
+                //     echo $value;
+                // }
+
+
+                // echo gettype($new_result);
+                // echo gettype($row);
+                // $new_thing   = $row->fetch_array(MYSQLI_ASSOC);
+                // print_r($new_thing);
+                // foreach ($row as $new_value) {
+                //     print_r( $new_value);
+                // $sql = "INSERT INTO user_hobby (user_id, hobby_id) VALUES('$last_user_id', '$new_value' ) ";
+
+
+                // }
+
+
+                foreach ($new_array as $latest_value) {
+                    // echo $latest_value;
+                    $sql = "INSERT INTO user_hobby (user_id, hobby_id) VALUES('$last_user_id', '$latest_value' ) ";
+                    if ($result = $connection->query($sql) === TRUE) {
+                        // echo $result;
+                    } else {
+                        echo "Error:" . $sql . "<br>" . $connection->error;
+                    }
+                }
+
+
+
+                if (move_uploaded_file($temp_name, $folder)) { #moving the file from the server to temp location - in our case its the images folder.
+                    $msg = "Image uploaded successfully";
+                } else {
+                    $msg = "Failed to upload image.";
+                }
+
+
+
+                $get_new_email_dbid_query = "SELECT user_id FROM user WHERE email = '$email_new'";
+
+                $new_result_for_new_dbid = $connection->query($get_new_email_dbid_query);
+
+                while ($row_new_one = mysqli_fetch_array($new_result_for_new_dbid)) {
+                    $new_email_dbid = $row_new_one[0];
+                }
+
+
+
+                $mail = new PHPMailer(true);
+
+                try {
+
+
+                    $mail->SMTPDebug = false;                  //Enable SMTP debugging. #should keep it false otherwise you will have all the details on the screen .. Keep it true only if you want to debug or sometimes you have to debug to resolve error.
+                    $mail->isSMTP();                        // Set mailer to use SMTP
+                    $mail->Host       = 'smtp.gmail.com;';    // Specify main SMTP server
+                    $mail->SMTPAuth   = true;               // Enable SMTP authentication
+                    $mail->Username   = 'testpatel456@gmail.com';     // SMTP username
+                    $mail->Password   = 'Test@123';         // SMTP password
+                    $mail->SMTPSecure = 'tls';              // Enable TLS encryption, 'ssl' also accepted
+                    $mail->Port       = 587;                // TCP port to connect to
+
+
+                    #Add the recipients of the mail.
+                    $mail->setFrom('testpatel456@gmail.com', 'TestName');           // Set sender of the mail
+                    $mail->addAddress("{$email_new}");  // Add a recipient
+                    // $mail->addAddress('receiver2@gfg.com', 'Name');   // Name is optional
+                    $mail->isHTML(true); #making it true as we want to send some html for the verification .. once clicked on that link user will be redirected to verification page.                                 
+                    $mail->Subject = 'Email Verification';
+                    $mail->Body    = "Please verify the email and click below link to verify  <a href= http://freecodepractice.com/email_verification.php?email_v_hash=" . $email_v_hash . "> Click here to verify </a>";
+                    // $mail->AltBody = 'Body in plain text for non-HTML mail clients';
+                    // /home/g21/Projects/simple_crud-level1-project1_CorePHP/testing/email_v_file.php
+                    $mail->send();
+
+                    echo "<font color='blue'> A verification email has been sent successfully! to your email id. Please check your mailbox and verify the same." . "</font>";
+                } catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+            } else {
+                $password_mismatch_Err = "Password and confirm password do not match!";
+            }
+        }
+    } else {
+        echo "<font color=red>" . "Check mandatory fields." . "</font>"; #you can just keep this message empty.
+    }
 }
-// echo $current_hobby_list = $_GET['current_hobbies'];
 
 ?>
+
+
 <html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit User</title>
+    <title>Update User</title>
     <style>
         label {
             color: blueviolet;
@@ -93,14 +327,14 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
 <body>
 
     <div>
-        <h1> Edit/Update Profile </h1>
+        <h1> Update Profile </h1>
     </div>
 
-    <form method="POST" action="update_user.php" enctype="multipart/form-data">
+    <form method="POST" action="" id="form_id" enctype="multipart/form-data">
 
         <div>
             <label> First Name: </label>
-            <input type="text" name="first_name" id="first_name" value= <?php echo $current_fname  ?> >  &emsp;
+            <input type="text" name="first_name" id="first_name"> &emsp;
             <span class="error">
                 <?php
                 if (isset($firstNameErr)) {
@@ -109,14 +343,14 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
                 ?>
             </span>
             <label> Last Name: </label>
-            <input type="text" name="last_name" id="last_name" value= <?php echo $current_lname ?> >
+            <input type="text" name="last_name" id="last_name">
         </div>
         </br>
 
 
         <div>
             <label> Email: </label>
-            <input style="width: 500px;" type="email" name="email" id="email" value= <?php echo $current_email ?> >
+            <input style="width: 500px;" type="email" name="email" id="email">
             <span class="error">
                 <?php
                 if (isset($emailErr)) {
@@ -134,12 +368,12 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
             <label> Password: </label>
             <input type="password" name="password" id="password"> &emsp;
             <span class="error">
-                <!-- <?php
+                <?php
                 // if (isset($passwordErr)) {
                 //     echo $passwordErr;
                 // }
-                ?> -->
-            <!-- </span>
+                ?>
+            </span>
             <label> Confirm Password: </label>
             <input type="password" name="confirm_password" id="confirm_password">
             <span class="error">
@@ -149,26 +383,24 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
                 // }
                 ?>
             </span>
-        </div> --> 
+        </div> -->
         </br>
 
         <div>
-            <!-- <label> Address Id </label> -->
-            <input type="hidden" name="address_id" id="address_id" value= <?php echo $current_address_id ?> > 
             <label> Address Line 1 </label>
-            <input type="text" name="address_line_1" id="address_line_1" value= <?php echo $current_address_line_1 ?> > &emsp;
+            <input type="text" name="address_line_1" id="address_line_1"> &emsp;
             <label> Address Line 2 </label>
-            <input type="text" name="address_line_2" id="address_line_2" value= <?php echo $current_address_line_2 ?> >
+            <input type="text" name="address_line_2" id="address_line_2">
         </div>
         </br>
 
         <div>
             <label> City </label>
-            <input type="text" name="city" id="city" value= <?php echo $current_city ?> > &ensp;
+            <input type="text" name="city" id="city"> &ensp;
             <label> State </label>
-            <input type="text" name="state" id="state" value= <?php echo $current_state ?> > &ensp;
+            <input type="text" name="state" id="state"> &ensp;
             <label> Country </label>
-            <select name="country" id="country" value= <?php echo $current_country ?> >
+            <select name="country" id="country">
                 <option value="Afganistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
                 <option value="Algeria">Algeria</option>
@@ -419,58 +651,21 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
         </div>
         </br>
 
-    <!-- CHECK HOW WE WILL MAKE SELECTED BOXES CHECKED WHEN EDITING? -->
-    
-       <?php 
-       
-        echo $current_hobby_list = $_GET['current_hobbies'];
-        echo "</br>";
-        $current_hobby_list_array =explode("," , $current_hobby_list);
-        //   echo $hobby_list_array;
-        // foreach ($current_hobby_list_array as $value) {
-            // echo "</br>" . $value;
-            // $value;
-        
-
-            // if ($value=="music") { echo "checked";    }
-            
-        ?>
-        
         <div>
             <label> Choose at least two hobbies: </label></br>
-            <input type="checkbox" name='hobby_list[]' value="music"   <?php foreach ($current_hobby_list_array as $value) { if ($value=="music") {echo "checked";}  };   ?> >   
+            <input type="checkbox" name='hobby_list[]' value="music">
             <label> Litening to music </label>
-            <input type="checkbox" name='hobby_list[]' value="cricket" <?php foreach ($current_hobby_list_array as $value) {if ($value=="cricket") {echo "checked";} };     ?>  >
+            <input type="checkbox" name='hobby_list[]' value="cricket">
             <label> Playing cricket </label>
-            <input type="checkbox" name='hobby_list[]' value="football" <?php foreach ($current_hobby_list_array as $value) {if ($value=="football") {echo "checked";} };    ?>  >
+            <input type="checkbox" name='hobby_list[]' value="football">
             <label> Playing football </lable>
-            <input type="checkbox" name='hobby_list[]' value="swimming" <?php foreach ($current_hobby_list_array as $value) {if ($value=="swimming") {echo "checked";} };     ?>  >
-            <label> Swimming </lable>
-            <input type="checkbox" name='hobby_list[]' value="gaming"  <?php foreach ($current_hobby_list_array as $value) {if ($value=="gaming") {echo "checked";} };     ?>  >
-            <label> Playing games </lable>
-            <input type="checkbox" name='hobby_list[]' value="reading" <?php foreach ($current_hobby_list_array as $value) {if ($value=="reading") {echo "checked";} };     ?>  >
-            <label>Reading</lable>
-
-<!--             <label> Choose at least two hobbies: </label></br>
-            <input type="checkbox" name='hobby_list[]' value="music"   <?php //foreach ($current_hobby_list_array as $value) { echo ( $value == "music"  ?    'checked' : 'unchecked' ) ; };   ?> >   
-            <label> Litening to music </label>
-            <input type="checkbox" name='hobby_list[]' value="cricket" <?php //foreach ($current_hobby_list_array as $value) {echo ( $value == "cricket"  ?   'checked' : 'unchecked' );};     ?>  >
-            <label> Playing cricket </label>
-            <input type="checkbox" name='hobby_list[]' value="football" <?php //foreach ($current_hobby_list_array as $value) {echo ( $value == "football"  ?   'checked' : 'unchecked' );};    ?>  >
-            <label> Playing football </lable>
-            <input type="checkbox" name='hobby_list[]' value="swimming" <?php //foreach ($current_hobby_list_array as $value) {echo ( $value == "swimming"  ?   'checked' : 'unchecked' );};     ?>  >
-            <label> Swimming </lable>
-            <input type="checkbox" name='hobby_list[]' value="gaming"  <?php //foreach ($current_hobby_list_array as $value) {echo ( $value == "gaming"  ?   'checked' : 'unchecked' );};     ?>  >
-            <label> Playing games </lable>
-            <input type="checkbox" name='hobby_list[]' value="reading" <?php // foreach ($current_hobby_list_array as $value) {echo ( $value == "reading"  ?   'checked' : 'unchecked' );};     ?>  >
-            <label>Reading</lable>
- -->
-
+                <input type="checkbox" name='hobby_list[]' value="swimming">
+                <label> Swimming </lable>
+                    <input type="checkbox" name='hobby_list[]' value="gaming">
+                    <label> Playing games </lable>
+                        <input type="checkbox" name='hobby_list[]' value="reading">
+                        <label>Reading</lable>
         </div>
-        
-
-        
-
         <?php
         if (isset($hobby_error)) {
             "<p>" .  "<font color=red>" . $hobby_error . "</font></p>";
@@ -481,7 +676,7 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
 
         <div>
             <label> Date of Birth: </label>
-            <input type="date" name="date_of_birth" id="date_of_birth" value= <?php echo $current_date_of_birth ?> min="1900-01-01" max="2001-05-01" >&ensp;
+            <input type="date" name="date_of_birth" id="date_of_birth" min="1900-01-01" max="2001-05-01" value="2001-05-01">&ensp;
             <label> (You should be older than 21 years) </label>
         </div>
         </br>
@@ -489,9 +684,8 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
 
         <div>
             <label> Profile Picture (Only .jpg, .jpeg, .png) </label>
-            <input type="file" name="profile_picture" id="profile_picture" value= <?php echo $current_profile_picture ?> accept=".jpg, .jpeg, .png"> 
+            <input type="file" name="profile_picture" id="profile_picture" accept=".jpg, .jpeg, .png">
             <label>Size must be lesser than 1 MB</label>
-            <?php echo "<br>current file name: " . $current_profile_picture ?>
         </div>
         </br>
 
@@ -505,14 +699,85 @@ while ($row = $result -> fetch_array(MYSQLI_ASSOC)) {
 
     </form>
 
-<?php
-
-// }
 
 
-?>
-
-<?php
 
 
-?>
+
+
+
+
+
+    </br></br></br></br></br></br>
+    <div class="success">
+        <?php
+        if (isset($success_message)) {
+            echo $success_message;
+        }
+        ?>
+    </div>
+
+    <!-- <div class="pass_mismatch_err">
+        <?php
+        // if (isset($password_mismatch_Err)) {
+        //     echo $password_mismatch_Err;
+        // }
+        ?>
+    </div> -->
+
+    <div class="error">
+        <?php
+        if (isset($db_error_message)) {
+            echo $db_error_message;
+        }
+        ?>
+    </div>
+
+    <pre>
+        <label>Data from POST Request</label>
+        <?php
+        print_r($_POST)
+        ?>
+        </pre>
+
+    <pre>
+        <label>Data from GET Request</label>
+        <?php
+        print_r($_GET)
+        ?>
+        </pre>
+
+
+
+
+
+
+    <script>
+
+    //for AJAX later on
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>

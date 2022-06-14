@@ -142,11 +142,12 @@ foreach($row as $hobby){
                     echo "<td>" . $row_new['email'] . "</td>";
                     echo "<td>" . $row_new['account_status'] . "</td>";
                     echo "<td>" . $row_new['date_of_birth'] . "</td>";
-                    echo "<td>" . (!empty($finalHobbiesByuser[$row_new['user_id']]) ? implode(',', $finalHobbiesByuser[$row_new['user_id']]) : '-'). "</td>"; #used ternary operator with the help of buddy.
-                    echo "<td>" . $row_new['profile_picture'] . "</td>";
-                    echo "<td><a href=" . "edit_user.php?id=" . $row_new['user_id'] . ">" .  "Edit </a></td>";
+                   
+                    echo "<td>" . (!empty($finalHobbiesByuser[$row_new['user_id']]) ? implode(',', $finalHobbiesByuser[$row_new['user_id']]) : '-'). "</td>"; #used ternary operator with the help.
+                    
+                    echo "<td><a href=" . "edit_user.php?user_id=" . $row_new['user_id']. "&" . "current_hobbies=" . (!empty($finalHobbiesByuser[$row_new['user_id']]) ? implode(',', $finalHobbiesByuser[$row_new['user_id']]) : '-') . ">" .  "Edit </a></td>";
                     // echo "<td><button type=submit name=delete><a href=user_list.php?id=" . $row_new['id']  .">". "Delete" . "</button></td>";
-                    echo "<td><a href=" . "delete_user.php?id=" . $row_new['user_id'] . ">" .  "Delete </a></td>";
+                    echo "<td><a href=" . "delete_user.php?user_id=" . $row_new['user_id'] . ">" .  "Delete </a></td>";
                 echo "</tr>";
             }
 
